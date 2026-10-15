@@ -1,0 +1,18 @@
+# Research checkouts and downloaded protocol material are not part of the plugin.
+work/
+
+# Dependencies and build output
+node_modules/
+dist/
+coverage/
+
+# Local runtime state
+.goal-progress/
+*.log
+
+# Local editor and operating-system files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
