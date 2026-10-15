@@ -44,7 +44,13 @@ codex plugin add codex-goal-viewer@gumu-codex-plugins
 
 Review and trust the two plugin hooks when Codex asks. Start a new Goal conversation, or send the next message in an existing Goal conversation, so the hook can bind that conversation to the viewer.
 
-Open **Goal Progress** from the conversation's right-side plugin area. The panel initially shows `暂无数据` until the Goal agent reports its first structured plan state.
+Open the panel from the conversation header:
+
+1. Select the `+` button at the upper right to open a conversation side tab.
+2. Select **更多工具...**.
+3. Under **插件和 MCP**, select **Goal Progress**.
+
+The **来源** card only confirms that `codex-goal-viewer` is connected; selecting that source does not open the panel. The first load can briefly show `暂无数据` while Codex returns the current Goal snapshot. Keep the **Goal Progress** tab open for live updates. Use the arrow at the bottom of the panel to collapse it to one line or expand it again.
 
 ## Update or remove
 

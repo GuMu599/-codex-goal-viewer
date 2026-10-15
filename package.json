@@ -14,7 +14,7 @@
     "build:hook": "esbuild hooks/capture-session.mjs --bundle --minify --format=esm --platform=node --target=node22 --outfile=dist/hook.mjs",
     "build:plugin": "npm run build:widget && npm run build:server && npm run build:hook && node scripts/clean-bundles.mjs",
     "verify:plugin": "node scripts/verify-plugin-package.mjs",
-    "test": "node --test",
+    "test": "node --test hooks/capture-session.test.mjs src/**/*.test.js",
     "check": "node --check src/cli.js && node --check src/codex/protocol.js && node --check src/codex/app-server-client.js && node --check src/codex/app-server-rpc.js && node --check src/domain/progress.js && node --check src/domain/state-store.js && node --check src/server/app.js && node --check src/public/app.js && node --check src/plugin/session-store.js && node --check src/plugin/snapshot-service.js && node --check src/plugin/mcp-server.js && node --check hooks/capture-session.mjs"
   },
   "license": "MIT",

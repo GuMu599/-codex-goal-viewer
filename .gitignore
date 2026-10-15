@@ -5,6 +5,7 @@ tmp/
 # Dependencies and local verification output
 node_modules/
 coverage/
+outputs/
 
 # Local runtime state
 .goal-progress/
