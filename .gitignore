@@ -10,6 +10,9 @@ coverage/
 .goal-progress/
 *.log
 
+# Local npm metadata
+package-lock.json
+
 # Local editor and operating-system files
 .vscode/
 .idea/

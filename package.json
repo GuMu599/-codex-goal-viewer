@@ -1,0 +1,14 @@
+{
+  "name": "codex-goal-viewer",
+  "version": "0.1.0",
+  "private": false,
+  "description": "A local, compact Codex Goal progress viewer for Windows.",
+  "type": "module",
+  "engines": { "node": ">=22" },
+  "scripts": {
+    "start": "node src/cli.js",
+    "test": "node --test",
+    "check": "node --check src/cli.js && node --check src/domain/progress.js && node --check src/domain/state-store.js && node --check src/server/app.js && node --check src/public/app.js"
+  },
+  "license": "MIT"
+}

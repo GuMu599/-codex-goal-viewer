@@ -1,0 +1,11 @@
+:root { color-scheme: light dark; font-family: system-ui, -apple-system, "Segoe UI", sans-serif; background: #111318; color: #f3f5f7; }
+* { box-sizing: border-box; }
+body { margin: 0; min-width: 240px; background: #111318; }
+.panel { width: min(100%, 420px); padding: 16px; margin: 0 auto; background: #191c22; border: 1px solid #303640; border-radius: 12px; }
+.summary { display: flex; justify-content: space-between; gap: 12px; align-items: baseline; font-size: 12px; color: #aab2bf; }
+.status { color: #dce2eb; font-weight: 600; }.compact { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.metrics { display: grid; gap: 16px; margin-top: 20px; }.metric-label { display: block; color: #8e98a8; font-size: 11px; margin-bottom: 6px; }.metrics strong { font-size: 18px; font-weight: 650; }
+.progress-block { display: grid; grid-template-columns: 1fr auto; gap: 7px 12px; align-items: center; }.progress-block .metric-label { grid-column: 1 / -1; margin: 0; }.progress-track { height: 7px; border-radius: 99px; background: #303640; overflow: hidden; }.progress-track span { display: block; height: 100%; background: #7cc4ff; transition: width 220ms ease-out; }
+.toggle { width: 100%; margin-top: 20px; padding: 9px; color: #cbd6e4; background: transparent; border: 0; border-top: 1px solid #303640; cursor: pointer; font: inherit; font-size: 12px; }.toggle:focus-visible { outline: 2px solid #7cc4ff; outline-offset: 3px; }
+.is-collapsed { padding-block: 10px; }.is-collapsed .status, .is-collapsed .metrics { display: none; }.is-collapsed .summary { display: block; }.is-collapsed .compact { display: block; }.is-collapsed .toggle { margin-top: 8px; }
+@media (prefers-reduced-motion: reduce) { .progress-track span { transition: none; } }
