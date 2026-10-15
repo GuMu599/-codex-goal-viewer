@@ -3,125 +3,107 @@
 [![Node.js 22+](https://img.shields.io/badge/Node.js-22%2B-339933?logo=node.js&logoColor=white)](https://nodejs.org/)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
-Windows-first local viewer for long-running Codex Goals.
+Codex Goal Viewer is a compact Codex Desktop plugin for long-running Goal tasks. It adds a conversation side-panel entrypoint that shows only:
 
-Codex Goal Viewer answers only three questions:
+- Goal progress
+- Token consumption
+- A rough remaining-time estimate
 
-- How much of the Goal is complete?
-- How many tokens has it consumed?
-- Roughly how much time remains?
+Use the icon button at the bottom of the panel to collapse or expand it.
 
-The panel is intentionally compact. It can be collapsed from the bottom, leaving a one-line summary visible. It does not show model reasoning, command logs, step lists, or a second editable task plan.
+## How it works
 
-> **Status:** MVP. The progress model, persistence, localhost API, collapsible panel, replay tests, and App Server stdio bridge are implemented. Direct automatic attachment to an already-open Codex Desktop conversation is limited by the public App Server boundary; details below.
+The plugin uses supported Codex and MCP interfaces instead of reading the desktop DOM or parsing free-form model text:
 
-## Features
+1. Trusted Codex lifecycle hooks record the current conversation session ID.
+2. The hook asks the Goal agent to report `completed` and `total` from its structured plan through `goal_progress.report`.
+3. The MCP server reads `tokensUsed` and `timeUsedSeconds` from Codex `thread/goal/get`.
+4. An MCP App with an OpenAI `thread` entrypoint renders the compact side panel and refreshes every 2.5 seconds.
 
-- Deterministic progress: `completed steps / total structured Plan steps`
-- Coarse ETA range derived from elapsed time and completion percentage
-- Goal token total with thread-token fallback
-- Restart recovery through an append-only JSONL event log and snapshot
-- Loopback-only HTTP API and Server-Sent Events updates
-- Optional `codex app-server --stdio` JSON-RPC bridge
-- Keyboard-accessible collapse/expand control
-- Reduced-motion styling and narrow-panel layout
-- No Codex DOM/CDP injection and no free-text guessing
-
-## Requirements
-
-- Windows for the first release
-- Node.js 22 or newer
-- A Codex CLI installation if using `--app-server`
-
-## Install and run
-
-```powershell
-git clone https://github.com/GuMu599/-codex-goal-viewer.git
-cd -LiteralPath .\-codex-goal-viewer
-node src\cli.js --thread <thread-id>
-```
-
-Or use the Windows launcher:
-
-```powershell
-.\scripts\start-goal-progress.cmd --thread <thread-id>
-```
-
-The service prints a URL such as `http://127.0.0.1:43821/`. Open that URL in Codex's right-side Browser panel.
-
-Useful options:
+Progress is `completed / total`. ETA uses the elapsed Goal time and current percentage:
 
 ```text
---thread <id>       Thread to monitor
---port <port>       Fixed port; defaults to an available ephemeral port
---data-dir <path>   Local state directory
---app-server        Start codex app-server --stdio and bridge its events
---codex-bin <path>  Custom Codex executable for --app-server
+remaining = elapsed x (1 - completion) / completion
 ```
 
-## Public App Server boundary
+The panel displays a deliberately broad 75%-125% range. It is directional, not a deadline. Tokens are displayed but do not affect percentage or ETA.
 
-The bridge performs public JSON-RPC initialization, requests `thread/goal/get`, and forwards these notifications when visible on that App Server connection:
+## Install in Codex Desktop
 
-- `thread/goal/updated`
-- `turn/plan/updated`
-- `thread/tokenUsage/updated`
+Requirements:
 
-The public API does not guarantee that an independently started App Server shares the Goal state of a conversation already open inside Codex Desktop. On Codex Desktop 0.160.0, the stdio handshake works, but an independent process may still report `未连接` because Desktop's in-memory conversation is not exposed to it.
+- Codex Desktop with plugin, hook, and MCP Apps support
+- Node.js 22 or newer available as `node`
 
-When that happens, a host adapter must forward the current conversation's events to the local endpoint below. The project does not read private DOM, inject CDP scripts, or infer progress from free-form text.
-
-## Event adapter API
-
-The local service accepts App Server-style events at `POST /api/events` and exposes the normalized view at `GET /api/state`.
+Install from the GitHub marketplace repository:
 
 ```powershell
-$base = 'http://127.0.0.1:<port>'
-$goal = @{ method = 'thread/goal/updated'; params = @{ threadId = 'thread-1'; goal = @{ status = 'active'; tokensUsed = 126400; timeUsedSeconds = 1080; updatedAt = 1 } } } | ConvertTo-Json -Depth 8
-$plan = @{ method = 'turn/plan/updated'; params = @{ threadId = 'thread-1'; turnId = 'turn-1'; plan = @(@{ status = 'completed'; step = 'one' }, @{ status = 'pending'; step = 'two' }) } } | ConvertTo-Json -Depth 8
-Invoke-RestMethod "$base/api/events" -Method Post -ContentType 'application/json' -Body $goal
-Invoke-RestMethod "$base/api/events" -Method Post -ContentType 'application/json' -Body $plan
-Invoke-RestMethod "$base/api/state"
+codex plugin marketplace add GuMu599/-codex-goal-viewer
+codex plugin add codex-goal-viewer@gumu-codex-plugins
 ```
 
-The service ignores unrelated threads and stale events. It does not expose mutation endpoints for changing the Goal or Plan.
+Review and trust the two plugin hooks when Codex asks. Start a new Goal conversation, or send the next message in an existing Goal conversation, so the hook can bind that conversation to the viewer.
 
-## Progress and ETA
+Open **Goal Progress** from the conversation's right-side plugin area. The panel initially shows `暂无数据` until the Goal agent reports its first structured plan state.
 
-```text
-completion = completed steps / total structured Plan steps
-remaining ≈ elapsed time × (1 - completion) / completion
-```
-
-The displayed range is intentionally broad (75%–125% of the central estimate) and is directional, not a deadline.
-
-- No structured Plan or 0%: `暂无估算`
-- Complete Goal: `已完成`
-- Blocked/usage-limited/budget-limited Goal: `等待处理`
-- Goal `tokensUsed` takes priority over thread totals; otherwise `暂无数据`
-
-Tokens are displayed only. They do not affect the percentage or ETA.
-
-## Local verification
+## Update or remove
 
 ```powershell
+codex plugin marketplace upgrade gumu-codex-plugins
+codex plugin remove codex-goal-viewer@gumu-codex-plugins
+```
+
+Local runtime state is stored under `%USERPROFILE%\.codex-goal-viewer\plugin` by default. Override it with `GOAL_VIEWER_DATA_DIR` when needed.
+
+## Development
+
+```powershell
+npm ci
+npm run build:plugin
 npm test
 npm run check
+npm run verify:plugin
 git diff --check
 ```
 
-The test suite covers the progress model, ETA edge cases, event ordering, restart recovery, loopback API, event-stream endpoint, panel rendering, collapse state, and CLI replay from unavailable → 50% → complete.
+`npm run verify:plugin` checks the publishable files, launches the bundled MCP server, and verifies all three tools plus the `text/html;profile=mcp-app` thread resource.
 
-## Repository layout
+For local marketplace development:
+
+```powershell
+codex plugin marketplace add .
+codex plugin add codex-goal-viewer@gumu-codex-plugins
+```
+
+After changing hook commands, Codex intentionally marks their new hashes as modified. Review and trust the updated hooks again.
+
+## Architecture
 
 ```text
-src/domain/       Progress calculation and durable state store
-src/codex/        App Server JSON-RPC bridge and protocol helpers
-src/server/       Loopback API, SSE, and static file server
-src/public/       Compact browser panel
-scripts/           Windows launcher
-docs/              Design and implementation specifications
+.agents/plugins/marketplace.json  GitHub marketplace catalog
+.codex-plugin/plugin.json         Codex compatibility manifest
+.mcp.json                         MCP server declaration
+hooks/                            Session binding and agent context
+src/plugin/                       MCP server, state, and panel source
+src/codex/                        Codex App Server client
+dist/                             Self-contained publishable bundles
 ```
+
+The repository still contains the original localhost viewer under `src/server` and `src/public` for development and regression coverage. The installed Codex plugin uses the bundled files in `dist/`.
+
+## Current limitations
+
+- Progress requires a structured plan with at least one step. The plugin never guesses a percentage from prose.
+- Existing conversations need one new user submission after installation so the hook can bind the session.
+- The active-session binding is local to the current Windows user. Rapidly alternating between multiple Goal conversations may briefly show the most recently active one until the current conversation reports again.
+- Lifecycle hooks make this a desktop/local-executor plugin. It is distributed through this GitHub marketplace repository rather than the universal public plugin directory.
+
+## Security
+
+- Hook commands are explicit and hash-trusted by Codex.
+- The plugin stores only the session ID, workspace/transcript paths supplied by Codex, and structured step counts.
+- It does not inspect model reasoning, scrape the UI, inject CDP, or send telemetry.
+- MCP App HTML is bundled locally; no remote scripts are loaded.
 
 ## License
 

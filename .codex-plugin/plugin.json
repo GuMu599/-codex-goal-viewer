@@ -1,0 +1,24 @@
+{
+  "name": "codex-goal-viewer",
+  "version": "0.2.0",
+  "description": "Show structured Codex Goal progress, token usage, and a rough ETA in a conversation side panel.",
+  "author": { "name": "Gumu" },
+  "homepage": "https://github.com/GuMu599/-codex-goal-viewer",
+  "license": "MIT",
+  "keywords": ["codex", "goal", "progress", "tokens", "eta"],
+  "mcpServers": "./.mcp.json",
+  "hooks": "./hooks/hooks.json",
+  "requires_local_executor": true,
+  "interface": {
+    "displayName": "Codex Goal Viewer",
+    "shortDescription": "Track Goal progress, tokens, and ETA",
+    "longDescription": "A compact conversation side panel for structured Codex Goal progress, token consumption, and a coarse remaining-time estimate.",
+    "developerName": "Gumu",
+    "category": "Productivity",
+    "capabilities": ["Read Goal state", "Report structured progress"],
+    "websiteURL": "https://github.com/GuMu599/-codex-goal-viewer",
+    "supportURL": "https://github.com/GuMu599/-codex-goal-viewer/issues",
+    "brandColor": "#30B46C",
+    "screenshots": []
+  }
+}

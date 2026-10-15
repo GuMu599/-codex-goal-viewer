@@ -1,17 +1,14 @@
 # Research checkouts and downloaded protocol material are not part of the plugin.
 work/
+tmp/
 
-# Dependencies and build output
+# Dependencies and local verification output
 node_modules/
-dist/
 coverage/
 
 # Local runtime state
 .goal-progress/
 *.log
-
-# Local npm metadata
-package-lock.json
 
 # Local editor and operating-system files
 .vscode/

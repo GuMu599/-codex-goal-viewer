@@ -1,0 +1,20 @@
+{
+  "name": "gumu-codex-plugins",
+  "interface": {
+    "displayName": "Gumu Codex Plugins"
+  },
+  "plugins": [
+    {
+      "name": "codex-goal-viewer",
+      "source": {
+        "source": "local",
+        "path": "./"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Productivity"
+    }
+  ]
+}

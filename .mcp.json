@@ -1,0 +1,19 @@
+{
+  "mcpServers": {
+    "goal_viewer": {
+      "command": "node",
+      "args": ["dist/server.mjs"],
+      "cwd": ".",
+      "enabled": true,
+      "default_tools_approval_mode": "approve",
+      "tools": {
+        "goal_progress.open": { "approval_mode": "approve" },
+        "goal_progress.read": { "approval_mode": "approve" },
+        "goal_progress.report": { "approval_mode": "approve" }
+      },
+      "env_vars": ["HOME", "USERPROFILE", "PATH", "GOAL_VIEWER_DATA_DIR"],
+      "startup_timeout_sec": 15,
+      "tool_timeout_sec": 30
+    }
+  }
+}
