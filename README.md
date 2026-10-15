@@ -30,7 +30,9 @@ node src\cli.js --thread <当前线程ID>
 node src\cli.js --thread <当前线程ID> --app-server
 ```
 
-这会启动 `codex app-server --stdio`，完成公开 JSON-RPC 初始化，并请求当前线程 Goal；随后将收到的 Goal、Plan、Token 通知归并到本地面板。若使用自定义 Codex 可执行文件，可传 `--codex-bin <绝对路径>`。不同 Codex 构建是否向该连接广播某个已在其他界面运行的线程，取决于该构建的 App Server 会话范围；如果没有收到通知，面板会保留最后一次有效状态，且仍可使用 `/api/events` 回放接口验证。
+这会启动 `codex app-server --stdio`，完成公开 JSON-RPC 初始化，并请求该 App Server 会话可见的线程 Goal；随后将收到的 Goal、Plan、Token 通知归并到本地面板。若使用自定义 Codex 可执行文件，可传 `--codex-bin <绝对路径>`。
+
+重要限制：当前公开接口没有保证“独立启动的 App Server 自动共享 Codex Desktop 已打开对话”的能力。本项目在本机 Codex Desktop 0.160.0 上验证了 stdio 初始化，但独立进程无法自动读取 Desktop 内存中的当前 Goal。因此，若 `/api/state` 仍显示“未连接”，需要由宿主适配器将当前会话事件转发到 `/api/events`；这不是面板计算错误，也不能通过读取私有 DOM 或猜测文本来可靠修复。
 
 也可以双击或在 PowerShell 中运行：
 
