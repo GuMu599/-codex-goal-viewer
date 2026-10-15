@@ -24,6 +24,14 @@ cd -LiteralPath .\-codex-goal-viewer
 node src\cli.js --thread <当前线程ID>
 ```
 
+要让程序直接连接 Codex App Server 并接收同一连接上的实时通知，加上 `--app-server`：
+
+```powershell
+node src\cli.js --thread <当前线程ID> --app-server
+```
+
+这会启动 `codex app-server --stdio`，完成公开 JSON-RPC 初始化，并请求当前线程 Goal；随后将收到的 Goal、Plan、Token 通知归并到本地面板。若使用自定义 Codex 可执行文件，可传 `--codex-bin <绝对路径>`。不同 Codex 构建是否向该连接广播某个已在其他界面运行的线程，取决于该构建的 App Server 会话范围；如果没有收到通知，面板会保留最后一次有效状态，且仍可使用 `/api/events` 回放接口验证。
+
 也可以双击或在 PowerShell 中运行：
 
 ```powershell

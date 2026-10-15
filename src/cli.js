@@ -3,6 +3,7 @@ import { homedir } from 'node:os';
 import { join } from 'node:path';
 import { StateStore } from './domain/state-store.js';
 import { createGoalServer } from './server/app.js';
+import { startAppServerBridge } from './codex/app-server-client.js';
 
 const args = parseArgs(process.argv.slice(2));
 const threadId = args.thread ?? 'default';
@@ -11,11 +12,12 @@ await mkdir(dataDir, { recursive: true });
 const store = await StateStore.open({ dataDir, threadId });
 const app = createGoalServer({ store, port: Number(args.port ?? 0) });
 const address = await app.listen();
+const bridge = args['app-server'] ? startAppServerBridge({ store, threadId, codexBin: args['codex-bin'] ?? 'codex', onError: (error) => console.error(`[app-server] ${error.message}`) }) : null;
 const url = `http://127.0.0.1:${address.port}/?thread=${encodeURIComponent(threadId)}`;
 console.log(`Codex Goal Viewer listening at ${url}`);
 console.log(`Thread: ${threadId}`);
 console.log('POST App Server-style events to /api/events; press Ctrl+C to stop.');
-process.on('SIGINT', async () => { await app.close(); process.exit(0); });
+process.on('SIGINT', async () => { if (bridge) await bridge.close(); await app.close(); process.exit(0); });
 
 function parseArgs(values) {
   const result = {};

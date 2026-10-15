@@ -8,7 +8,7 @@
   "scripts": {
     "start": "node src/cli.js",
     "test": "node --test",
-    "check": "node --check src/cli.js && node --check src/domain/progress.js && node --check src/domain/state-store.js && node --check src/server/app.js && node --check src/public/app.js"
+    "check": "node --check src/cli.js && node --check src/codex/protocol.js && node --check src/codex/app-server-client.js && node --check src/domain/progress.js && node --check src/domain/state-store.js && node --check src/server/app.js && node --check src/public/app.js"
   },
   "license": "MIT"
 }
